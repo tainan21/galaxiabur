@@ -1,3 +1,3 @@
 module.exports = {
-    baseUrl: '/galaxiabur'
+    publicPath: '/galaxiabur'
 }
