@@ -1,2 +1,0 @@
-# galaxiabur
-Is new project
