@@ -1,10 +1,6 @@
 {
 	"name": "",
 	"version": "3.4.0-SNAPSHOT",
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/primefaces/sakai-vue.git"
-	},
 	"license": "MIT",
 	"scripts": {
 		"serve": "vue-cli-service serve",
