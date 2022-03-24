@@ -17,7 +17,7 @@
                     <div class="flex-1">
                         <div class="mb-3 legenda">{{pedido.payload.description}}</div>
                          <div class="text-left">
-                            <div class="mb-3 legenda">Adicionais:</div>
+                            <div v-if="pedido.payload.additional.length > 0" class="mb-3 legenda">Adicionais:</div>
                         </div>
                         <div v-for=" (value) in pedido.payload.additional" :key="value.id" class="mb-1 legenda">
                             <div class="grid grid-nogutter">
@@ -59,7 +59,7 @@
                             <InputText v-model="city" id="city" type="text" />
                         </div>
                         <div class="field col-12 md:col-6">
-                            <label for="state">Bairro</label>
+a                            <label for="state">Bairro</label>
                             <Dropdown id="bairro" v-model="bairro" :options="dropdownItems" optionLabel="name" placeholder="Bairro"></Dropdown>
                             <h6><span class="mr-1 mt-1 legenda" v-if="bairro" >Valor do Frete R$: {{bairro.price}}</span></h6>
                         </div>
@@ -101,6 +101,7 @@ import BottomNavigation from "../components/BottomNavigation.vue";
         components: { BottomNavigation },
         data() {
             return {
+                total: null,
                 nomeEmpresa: "Galaxia Burguers",
                 selected: 1,
                 payMoney: null, 
@@ -124,16 +125,16 @@ import BottomNavigation from "../components/BottomNavigation.vue";
                 toggleValue: false,
                 dropdownItem: null,
                 navigation: [{
-                    id: 1, icon: "pi pi-home", title: "Home", path: '../pages/foodburguer', badge: 15,
+                    id: 1, icon: "pi pi-home", title: "Home", path: '../pages/foodburguer', badge: null,
                     },
-                    { id: 2, icon: "pi pi-shopping-cart", title: "Carrinho", path: '../pages/carrinho', badge: 15 },
+                    { id: 2, icon: "pi pi-shopping-cart", title: "Carrinho", path: '../pages/carrinho', badge: null },
                 ],
                 foregroundColor: "#42A5F5",
                 badgeColor: "#FBC02D",
                 dropdownItems: [
-                    {name: 'Estação',  code: 'Option 1', price: 3},
-                    {name: 'Laranjal', code: 'Option 2', price: 4},
-                    {name: 'Centro', code: 'Option 3', price: 5}
+                    {name: 'Estação',  code: 'Option 1', price: 3.00},
+                    {name: 'Laranjal', code: 'Option 2', price: 4.00},
+                    {name: 'Centro', code: 'Option 3', price: 5.00}
                 ],
                 dropdownItemsMoney: [
                     {name: 'Dinheiro',  code: 'Option 1'},
@@ -152,7 +153,8 @@ import BottomNavigation from "../components/BottomNavigation.vue";
                 })
                 return  totalPedidos                               
             },
-			totalAdd() {                
+			totalAdd() { 
+                               
 				let total = 0
 			    this.pedidos.forEach(element =>{
                     total += element.payload.total                    
@@ -162,6 +164,15 @@ import BottomNavigation from "../components/BottomNavigation.vue";
 			}
 		},
         methods: {
+            total_pedido(){
+                this.total = 0
+			    this.pedidos.forEach(element =>{
+                    this.total += element.payload.total                    
+                })
+                this.bairro? this.total += this.bairro.price: null
+                return  this.total 
+
+            },
             excluir_pedido(index){
                 this.pedidos.splice(index, 1)                    
                 window.localStorage.setItem("carrinho", JSON.stringify(this.pedidos));                                                         
@@ -182,34 +193,34 @@ import BottomNavigation from "../components/BottomNavigation.vue";
               });
             },
             format_text() {
-                this.pedido_txt += "Olá, me chamo" + this.nome + "Gostaria de fazer o seguinte pedido: \n"
-                this.pedido_txt += "********************************* \n"
+                
+
+                this.pedido_txt += "Olá, me chamo " + this.nome + " Gostaria de fazer o seguinte pedido: \n"
                 this.pedidos.forEach(element => {
-                    this.pedido_txt += element.payload.name + "\n - Valor:  R$ "  
-                    this.pedido_txt += element.payload.total + "\nAdicional(is): "  
+                   
+                    this.pedido_txt += element.payload.name + " - Valor:  R$ " + element.payload.total +"\n"  
+                    element.payload.additional.length > 0?  this.pedido_txt += "Adicional(is): \n"  : null
                     element.payload.additional.forEach(add =>{
                          this.pedido_txt += add.name + "\n"
                     })
-                    this.pedido_txt += " ----------------------- \n"  
+                    this.pedido_txt += "----------------------- \n\n"  
                 });
-                this.pedido_txt += "\n -------------------------" + this.address +  ",\n"
-                this.pedido_txt += "\n O pedido irá para o seguinte endereço: " + this.address +  ",\n"
-                this.pedido_txt += "" + this.city + "\n"
-                this.pedido_txt += ", bairro: "+ this.bairro.name + "\n "
-                this.pedido_txt += " O metodo de pagamento será: " + this.payMoney.name + " \n" 
-                this.payMoney.name == 'Dinheiro'?  this.pedido_txt += " com troco para: " + this.troco + " \n" : null
+                this.pedido_txt += "frete: R$ " + this.bairro.price + "\n"                               
+                this.pedido_txt += "O pedido irá para o seguinte endereço: " + this.address +  ",\n"
+                this.pedido_txt += "Cidade: " + this.city + ",\n"
+                this.pedido_txt += "bairro: "+ this.bairro.name + "\n"
+                this.pedido_txt += "O metodo de pagamento será: " + this.payMoney.name + "\n"                 
+                this.payMoney.name == 'Dinheiro'?  this.pedido_txt +="Total a pagar: "+ this.total_pedido() + " Com troco para: " + this.troco + "\n" : null
+                //this.pedido_txt += "total a ser pago: " + this.totalAdd()
                 this.pedido_txt =  window.encodeURIComponent(this.pedido_txt);
                 
             },
             teste_getLocalStorage(){
 				const carrinho_salvo = window.localStorage.getItem('carrinho')
 				if(carrinho_salvo){
-					this.carrinho_recuperado = JSON.parse(carrinho_salvo)	
-                    console.log(this.carrinho_recuperado)	
-                    
+					this.carrinho_recuperado = JSON.parse(carrinho_salvo)	                                      
                     for (let index = 0; index < this.carrinho_recuperado.length; index++) {
-                       this.pedidos.push(this.carrinho_recuperado[index]);
-                        
+                       this.pedidos.push(this.carrinho_recuperado[index]);                        
                     }                    										
 				}		
                 		
@@ -255,6 +266,7 @@ import BottomNavigation from "../components/BottomNavigation.vue";
             },
         },
         mounted () {
+            console.log(this.pedidos)
             this.teste_getLocalStorage()
             this.total_product()
             },
